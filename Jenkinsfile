@@ -11,27 +11,32 @@ node {
     } 
 
     stage('Build Docker Image'){
-        sh 'docker build -t dockerhandson/java-web-app .'
+        // Construire l'image avec ton nom Docker Hub
+        sh 'docker build -t azizghachem/java-web-app .'
     }
 
     stage('Push Docker Image'){
+        // Credentials : Username & Password
         withCredentials([usernamePassword(credentialsId: 'Docker_Hub_Pwd', 
                                          usernameVariable: 'DOCKER_USER', 
                                          passwordVariable: 'DOCKER_PASS')]) {
             sh """
+                # Se connecter à Docker Hub
                 echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                docker push dockerhandson/java-web-app
+                # Pousser l'image sur Docker Hub
+                docker push azizghachem/java-web-app
             """
         }
     }
 
     stage('Run Docker Image In Dev Server'){
-        def dockerRun = 'docker run -d -p 8080:8080 --name java-web-app dockerhandson/java-web-app'
+        def dockerRun = 'docker run -d -p 8080:8080 --name java-web-app azizghachem/java-web-app'
 
         sshagent(['DOCKER_SERVER']) {
+            // Stop et supprime l'ancien conteneur si existant
             sh 'ssh -o StrictHostKeyChecking=no ubuntu@172.31.20.72 docker stop java-web-app || true'
             sh 'ssh ubuntu@172.31.20.72 docker rm java-web-app || true'
-            sh 'ssh ubuntu@172.31.20.72 docker rmi -f $(docker images -q) || true'
+            // Lancer le nouveau conteneur
             sh "ssh ubuntu@172.31.20.72 ${dockerRun}"
         }
     }
