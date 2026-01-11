@@ -6,24 +6,19 @@ node {
 
     stage("Maven Clean Package"){
         def mavenHome = tool name: "Maven-3.5.6", type: "maven"
-        def mavenCMD = "${mavenHome}/bin/mvn"
-        sh "${mavenCMD} clean package"
+        sh "${mavenHome}/bin/mvn clean package"
     } 
 
     stage('Build Docker Image'){
-        // Construire l'image avec ton nom Docker Hub
         sh 'docker build -t azizghachem/java-web-app .'
     }
 
     stage('Push Docker Image'){
-        // Credentials : Username & Password
         withCredentials([usernamePassword(credentialsId: 'Docker_Hub_Pwd', 
                                          usernameVariable: 'DOCKER_USER', 
                                          passwordVariable: 'DOCKER_PASS')]) {
             sh """
-                # Se connecter à Docker Hub
-                echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                # Pousser l'image sur Docker Hub
+                echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
                 docker push azizghachem/java-web-app
             """
         }
@@ -32,12 +27,15 @@ node {
     stage('Run Docker Image In Dev Server'){
         def dockerRun = 'docker run -d -p 8080:8080 --name java-web-app azizghachem/java-web-app'
 
-        sshagent(['DOCKER_SERVER']) {
-            // Stop et supprime l'ancien conteneur si existant
-            sh 'ssh -o StrictHostKeyChecking=no vboxuser@192.168.1.94 docker stop java-web-app || true'
-            sh 'ssh vboxuser@192.168.1.94 docker rm java-web-app || true'
+        sshagent(['Docker_SERVER']) {
+            // Stop le conteneur s'il existe
+            sh 'ssh -o StrictHostKeyChecking=no vboxuser@192.168.1.94 "docker stop java-web-app || true"'
+            
+            // Supprime le conteneur s'il existe
+            sh 'ssh vboxuser@192.168.1.94 "docker rm java-web-app || true"'
+            
             // Lancer le nouveau conteneur
-            sh "ssh vboxuser@192.168.1.94 ${dockerRun}"
+            sh "ssh vboxuser@192.168.1.94 '${dockerRun}'"
         }
     }
 
