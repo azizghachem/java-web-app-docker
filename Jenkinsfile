@@ -34,10 +34,10 @@ node {
 
         sshagent(['DOCKER_SERVER']) {
             // Stop et supprime l'ancien conteneur si existant
-            sh 'ssh -o StrictHostKeyChecking=no ubuntu@10.0.2.15 docker stop java-web-app || true'
-            sh 'ssh ubuntu@10.0.2.15 docker rm java-web-app || true'
+            sh 'ssh -o StrictHostKeyChecking=no vboxuser@192.168.1.94 docker stop java-web-app || true'
+            sh 'ssh vboxuser@192.168.1.94 docker rm java-web-app || true'
             // Lancer le nouveau conteneur
-            sh "ssh ubuntu@10.0.2.15 ${dockerRun}"
+            sh "ssh vboxuser@192.168.1.94 ${dockerRun}"
         }
     }
 
