@@ -1,3 +1,8 @@
+properties([
+    pipelineTriggers([
+        cron('* * * * *')
+    ])
+])
 node {
 
     stage('SCM Checkout') {
