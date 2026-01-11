@@ -1,4 +1,4 @@
-properties([])
+
 node {
 
     stage('SCM Checkout') {
