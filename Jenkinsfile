@@ -32,7 +32,7 @@ node {
         }
     }
 
-    stage('Run Docker Image In Dev Server') {
+    stage('ssh') {
 
         sshagent(['DOCKER_SERVER']) {
 
