@@ -38,19 +38,19 @@ node {
 
             // Stop container if exists
             sh '''
-                ssh -o StrictHostKeyChecking=no vboxuser@192.168.1.94 \
+                ssh -o StrictHostKeyChecking=no vboxuser@10.44.35.82 \
                 "docker stop java-web-app || true"
             '''
 
             // Remove container if exists
             sh '''
-                ssh vboxuser@192.168.1.94 \
+                ssh vboxuser@10.44.35.82 \
                 "docker rm java-web-app || true"
             '''
 
             // Run new container
             sh '''
-                ssh vboxuser@192.168.1.94 \
+                ssh vboxuser@10.44.35.82 \
                 "docker run -d -p 8080:8080 --name java-web-app azizghachem/java-web-app"
             '''
         }
